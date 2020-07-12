@@ -123,3 +123,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# IDE/editor files
+.vscode/
+
+# custom
+*.ini
