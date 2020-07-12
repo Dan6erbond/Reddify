@@ -1,3 +1,3 @@
 SQLAlchemy>=1.3.18
-aPRAW>=0.5.2a0
+aPRAW>=0.5.3a0
 discord.py>=1.3.4

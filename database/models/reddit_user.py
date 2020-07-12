@@ -14,4 +14,4 @@ class RedditUser(Base):
     verified = Column(Boolean, default=False)
 
     def __repr__(self):
-        return f"<Reddit User id={self.id} username={self.username}>"
+        return f"<Reddit User id='{self.user_id}' username='{self.username}'>"

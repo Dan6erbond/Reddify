@@ -10,4 +10,4 @@ class DiscordUser(Base):
     user_id = Column(Integer, primary_key=True)
 
     def __repr__(self):
-        return f"<Discord User id={self.id}>"
+        return f"<Discord User id='{self.user_id}'>"

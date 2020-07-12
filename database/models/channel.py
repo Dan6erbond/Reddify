@@ -11,4 +11,4 @@ class Channel(Base):
     subreddit = Column(String(50))
 
     def __repr__(self):
-        return f"<Channel id={self.id}>"
+        return f"<Channel id='{self.channel_id}'>"

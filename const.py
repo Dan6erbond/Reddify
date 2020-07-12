@@ -1,0 +1,6 @@
+MAINTAINER = "Dan6erbond#2259"
+
+EMOJIS = {
+    "CHECK": ":check:571378632522465280",
+    "XMARK": ":xmark:571378641280172043"
+}
