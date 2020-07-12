@@ -127,5 +127,9 @@ dmypy.json
 # IDE/editor files
 .vscode/
 
-# custom
+# Custom
 *.ini
+
+# Database files
+*.db
+*.db-journal
