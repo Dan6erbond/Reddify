@@ -44,7 +44,7 @@ Reddify is a public bot hosted by Dan6erbond and can be invited to any public se
 
 ## Community and Support
 
-Reddify is actively being maintained and you're always free to join the [Mariavi](https://img.shields.io/discord/554773624784027658?color=7289da&label=Discord&logo=discord&style=flat-square) or [Dan6erbond](https://discord.gg/wMEyKZk) Discord servers to chat about it. Also consider joining the [aPRAW Discord server](https://discord.gg/66avTS7) which has made the implementation of Reddify possible in the first place and consider contributing to either projects!
+Reddify is actively being maintained and you're always free to join the [Mariavi](https://img.shields.io/discord/554773624784027658?color=7289da&label=Discord&logo=discord&style=flat-square) or [Dan6erbond](https://discord.gg/wMEyKZk) Discord servers to chat about it. Also consider joining the [aPRAW Discord server](https://discord.gg/66avTS7) which has made the implementation of Reddify possible in the first place and contributions to either projects are always welcome!
 
 ### Contributing
 
