@@ -42,6 +42,14 @@ Reddify is a public bot hosted by Dan6erbond and can be invited to any public se
   - `!stats <optional-username>`: Displays the stats of a user's linked accounts.
   - `!substats <optional-subreddit>:` Displays the stats of a subreddit.
 
+## Community and Support
+
+Reddify is actively being maintained and you're always free to join the [Mariavi](https://img.shields.io/discord/554773624784027658?color=7289da&label=Discord&logo=discord&style=flat-square) or [Dan6erbond](https://discord.gg/wMEyKZk) Discord servers to chat about it. Also consider joining the [aPRAW Discord server](https://discord.gg/66avTS7) which has made the implementation of Reddify possible in the first place and consider contributing to either projects!
+
+### Contributing
+
+As Reddify is open-source under the GPLv3 license, all additions and bug reports in the form of issues and pull requests are welcome! Have fun coding!
+
 ## License
 
 aPRAW's source is provided under GPLv3.
