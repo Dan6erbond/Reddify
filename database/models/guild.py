@@ -14,4 +14,4 @@ class Guild(Base):
     custom_nick = Column(Boolean, default=False)
 
     def __repr__(self):
-        return f"<Guild id={self.id} role={self.role}>"
+        return f"<Guild id='{self.guild_id}' role='{self.role}'>"
