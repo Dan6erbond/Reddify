@@ -35,7 +35,7 @@ class Reddify(commands.Bot):
         if msg.author.id == self.user.id:
             return
         # await msg.channel.send("Reddify is currently being overhauled to a v2. " +
-                              #  "For more information check out the GitHub Repo: https://github.com/Dan6erbond/Reddify-v2.")
+            #  "For more information check out the GitHub Repo: https://github.com/Dan6erbond/Reddify-v2.")
         await bot.process_commands(msg)
 
     def get_embed(self):
@@ -74,19 +74,14 @@ class Reddify(commands.Bot):
                 finally:
                     break
 
-    @commands.command(help="Get your subreddit's stats.")
-    async def substats(self, ctx: commands.Context, sub: str = ""):
-        pass
-
     @commands.command(help="Get a user's verified Reddit account(s).")
     @commands.check(advanced_user)
     async def reddify(self, ctx: commands.Context, user_id: int):
         pass
 
 
-extensions = ["cogs.user_cog",
-              "cogs.guild_cog",
-              "cogs.channel_cog"]
+extensions = ["cogs.user_cog", "cogs.guild_cog",
+              "cogs.channel_cog", "cogs.reddit_cog"]
 
 if __name__ == "__main__":
     bot = Reddify()
