@@ -68,7 +68,8 @@ class Reddify(commands.Bot):
 
 
 extensions = ["cogs.user_cog",
-              "cogs.guild_cog"]
+              "cogs.guild_cog",
+              "cogs.channel_cog"]
 
 if __name__ == "__main__":
     bot = Reddify()
