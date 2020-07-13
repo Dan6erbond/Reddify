@@ -69,3 +69,55 @@ class GuildCog(commands.Cog):
         await ctx.channel.send(f"Adding '{role_name}' role: {set_role}\n" +
                                f"Changing nickname to /u/username: {set_username}\n" +
                                f"Allowing custom nicknames: {set_nickname}")
+
+    @commands.command(help="Toggle setting roles/changing username on this guild.")
+    @commands.has_permissions(administrator=True)
+    async def toggle(self, ctx: commands.Context, toggle: str):
+        guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
+
+        if not guild:
+            guild = Guild(guild_id=ctx.guild.id)
+            session.add(guild)
+            session.commit()
+
+        if toggle == "username":
+            guild.set_username = not guild.set_username
+            session.commit()
+
+            if guild.set_username:
+                for member in ctx.guild.members:
+                    if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first():
+                        await self.bot.update_guild_user(guild, discord_user)
+                await ctx.send(f"<{EMOJIS['CHECK']}> Reddit usernames enabled for this server!")
+            else:
+                await ctx.send(f"<{EMOJIS['CHECK']}> Reddit usernames disabled for this server!")
+        elif toggle == "role":
+            guild.set_role = not guild.set_role
+
+            if guild.set_role:
+                if ctx.guild.get_role(guild.role) is None:
+                    role = await ctx.guild.create_role(name="Verified Redditor",
+                                                       colour=discord.Colour(0).from_rgb(254, 63, 24),
+                                                       mentionable=True,
+                                                       reason="Verified Redditors get this role by the bot.")
+                    guild.role = role.id
+
+                for member in ctx.guild.members:
+                    if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first():
+                        await self.bot.update_guild_user(guild, discord_user)
+
+                await ctx.send(f"<{EMOJIS['CHECK']}> Custom roles enabled for this server!")
+            else:
+                await ctx.send(f"<{EMOJIS['CHECK']}> Custom roles disabled for this server!")
+
+            session.commit()
+        elif toggle == "nick":
+            guild.custom_nick = not guild.custom_nick
+            session.commit()
+
+            if guild.custom_nick:
+                await ctx.send(f"<{EMOJIS['CHECK']}> Custom nicknames enabled for this server!")
+            else:
+                await ctx.send(f"<{EMOJIS['CHECK']}> Custom nicknames disabled for this server!")
+        else:
+            await ctx.message.channel.send("❗ Invalid argument. Toggle `role`, `username` or `nick`.")
