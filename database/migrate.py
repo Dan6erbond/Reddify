@@ -59,7 +59,7 @@ def main():
                 try:
                     user_id = f"t2_{redditor.id}"
                 except Exception as e:
-                    print(f"Couldn't fetch Redditor {acc}: {e}")
+                    print(f"Couldn't fetch Redditor /u/{acc}: {e}")
                     continue
                 if reddit_user := session.query(RedditUser).filter(
                         or_(RedditUser.username == acc, RedditUser.user_id == user_id)).first():
@@ -80,7 +80,7 @@ def main():
                 try:
                     user_id = f"t2_{redditor.id}"
                 except Exception as e:
-                    print(f"Couldn't fetch Redditor {acc}: {e}")
+                    print(f"Couldn't fetch Redditor /u/{acc}: {e}")
                     continue
                 if reddit_user := session.query(RedditUser).filter(
                         or_(RedditUser.username == acc, RedditUser.user_id == user_id)).first():
