@@ -1,6 +1,8 @@
+import re
 from typing import TYPE_CHECKING
 
 import apraw
+import discord
 from discord.ext import commands
 from sqlalchemy import func
 from sqlalchemy.sql.expression import and_, false
@@ -8,6 +10,7 @@ from sqlalchemy.sql.expression import and_, false
 from const import EMOJIS, MAINTAINER
 from database.database import session
 from database.models import DiscordUser, Guild, RedditUser
+from helpers import is_verified
 
 if TYPE_CHECKING:
     from main import Reddify
@@ -133,6 +136,112 @@ class UserCog(commands.Cog):
             self.bot.update_guild_user(guild, discord_user)
         elif discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
             await ctx.message.channel.send("You haven't verified any Reddit accounts with Reddify yet!")
+
+    @commands.command(help="Get your Reddit account(s) stats.")
+    @commands.check(is_verified)
+    async def stats(self, ctx: commands.Context, us: str = ""):
+        us = us.replace("u/", "").replace("/", "")
+
+        user = None
+
+        # TODO: Replace with Discord.py user utility function
+        if us != "":
+            id = re.search(r"(\d{18})", us)
+            if id is not None:
+                id = int(id.group(1))
+                user = ctx.guild.get_member(id)
+                if user is None:
+                    user = bot.get_user(id)
+            else:
+                for u in ctx.guild.members:
+                    if u.nick == us or u.name == us or str(u) == us:
+                        user = u
+                        break
+
+        wait_msg = None
+        user_name = f"/u/{us}" if user is None else user.name if user.nick is None or isinstance(
+            user, discord.User) else user.nick
+        if us == "":
+            user = ctx.author
+            wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
+        else:
+            wait_msg = await ctx.channel.send(f"🕑 Please wait while we gather {user_name}'s stats...")
+
+        embed = self.bot.get_embed()
+
+        url = f"https://www.reddit.com/u/{us}" if user is None else discord.Embed.Empty
+        title = f"{user_name}'s Reddit account(s):" if user is not None else f"{user_name}'s statistics:"
+        embed.set_author(name=title, url=url)
+
+        if user is not None:
+            u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
+
+            if u.reddit_accounts:
+                embed.description = "No verified Reddit accounts for {}!".format(user_name)
+
+            for r in u.reddit_accounts:
+                redditor = await self.bot.reddit.redditor(r.username)
+
+                m = f"{redditor.link_karma} link | {redditor.comment_karma} comment\n"
+
+                subscribers = 0
+                subreddits = [sub async for sub in redditor.moderated_subreddits() if (subscribers := subscribers + sub.subscribers)]
+
+                amt = len(subreddits)
+
+                subreddits = sorted(subreddits, key=lambda sub: sub.subscribers)[-10:]
+                subreddits = sorted(subreddits, key=lambda sub: sub.subscribers, reverse=True)
+
+                if len(subreddits) > 0:
+                    m += "Subreddits moderated:\n"
+
+                for subreddit in subreddits:
+                    moderators = [mod async for mod in subreddit.moderators()]
+                    prefix = "⭐" if r.lower() == str(moderators[0]).lower() else "🔸"
+                    m += f"{prefix}[/r/{subreddit}](https://www.reddit.com/r/{subreddit}): {subreddit.subscribers} Subscribers\n"
+
+                left_over = amt - len(subreddits)
+                if left_over > 0:
+                    m += f"...and {left_over} more subreddits.\n"
+
+                if subscribers > 0:
+                    m += f"Total: {subscribers} subscribers"
+
+                embed.add_field(name=f"/u/{redditor}: {redditor.comment_karma + redditor.link_karma} karma",
+                                value=m, inline=False)
+        else:
+            try:
+                redditor = await self.bot.reddit.redditor(us)
+            except BaseException:
+                await wait_msg.edit(content=f"❗ Data for /u/{us} couldn't be loaded!")
+                return
+
+            embed.description = f"{redditor.link_karma} link | {redditor.comment_karma} comment\n"
+
+            subscribers = 0
+            subreddits = [sub async for sub in redditor.moderated_subreddits() if (subscribers := subscribers + sub.subscribers)]
+
+            amt = len(subreddits)
+
+            subreddits = sorted(subreddits, key=lambda sub: sub.subscribers)[-10:]
+            subreddits = sorted(subreddits, key=lambda sub: sub.subscribers, reverse=True)
+
+            if len(subreddits) > 0:
+                subs = list()
+                for subreddit in subreddits:
+                    moderators = [mod async for mod in subreddit.moderators()]
+                    prefix = "⭐" if us.lower() == str(moderators[0]).lower() else "🔸"
+                    subs.append(
+                        f"{prefix}[/r/{subreddit}](https://www.reddit.com/r/{subreddit}): {subreddit.subscribers} Subscribers")
+
+                left_over = amt - len(subreddits)
+                left_over = f"\n...and {left_over} more subreddits." if left_over > 0 else ""
+
+                newline = '\n'
+                val = f"{newline.join(subs)}{left_over}\n\nTotal: {subscribers} subscribers"
+                embed.add_field(name="Subreddits", value=val)
+
+        await wait_msg.edit(embed=embed)
 
 
 def setup(bot: 'Reddify'):

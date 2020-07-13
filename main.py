@@ -1,4 +1,5 @@
 import configparser
+import traceback
 from datetime import datetime
 
 import apraw
@@ -21,6 +22,13 @@ class Reddify(commands.Bot):
 
     async def on_ready(self):
         print(f'{self.user.name} is running.')
+
+    async def on_command_error(self, ctx: commands.Context, error: Exception):
+        if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+            pass
+        else:
+            await ctx.message.channel.send(error)
+            print(traceback.format_exc())
 
     def get_embed(self):
         embed = discord.Embed(
