@@ -10,11 +10,11 @@ Reddify v2 is the open-source rework of the original Reddify bot. It makes use o
 ## Usage
 
 Reddify is a public bot hosted by Dan6erbond and can be invited to any public server via its [invite link](https://discord.com/oauth2/authorize?client_id=555093732010229760&scope=bot). Upon invitation, guild administrators can use the commands available to configure the bot and should also consider disabling members from changing their nickname if they wish for all of the nicknames to follow the "/u/<reddit-username>" convention.
- 
+
  ### Admin Setup
- 
+
  Guild admins can use the following commands to configure Reddify:
- 
+
   - `!toggle <role|username|nick>`: Based on the selection of either role, username or nick, the feature will be toggled on or off.
     * **role:** Creates a role in the guild that is assigned to members who have verified their Reddit account.
     * **username:** Automatically sets members' usernames to the format of "/u/<reddit-username>" after the verification process has been completed.
@@ -22,21 +22,21 @@ Reddify is a public bot hosted by Dan6erbond and can be invited to any public se
   - `!setguildsub <subreddit>`: Sets the subreddit that stats will be fetched for in the guild if no argument is passed to `!substats`.
   - `!setchannelsub <subreddit>`: Sets the subreddit that stats will be fetched for in the channel if no argument is passed to `!substats`.
   - `!status`: Shows the current status of the bot's configuration in the guild.
- 
+
  ### Verification
- 
+
  Users of the Reddify bot can connect as many Reddit accounts as they wish to a single Discord account. The process is very straightforward:
- 
+
  1. Initiate the process with the `!verify <reddit-username>` command.
  2. Respond to the message sent by the bot with `verify`.
  3. Wait until a checkmark appears on the bot's message in Discord, and the verification is complete!
- 
+
  To undo the verification or if the bot might have missed the `verify` message on Reddit, the `!unverify <reddit-username>` command can be used. If any errors are found, an issue can be created on GitHub or the developer directly contacted on Discord.
- 
+
  ### Commands
- 
+
  Besides verification and server setup, there are a couple commands that help connect Reddit and Discord via Reddify:
- 
+
   - `!me`: Displays all your (un)verified accounts.
   - `!nick <nickname>`: Sets a nickname before the "/u/<reddit-username>" part if the feature has been enabled in the guild.
   - `!stats <optional-username>`: Displays the stats of a user's linked accounts.
@@ -52,5 +52,5 @@ As Reddify is open-source under the GPLv3 license, all additions and bug reports
 
 ## License
 
-aPRAW's source is provided under GPLv3.
+Reddify's source is provided under GPLv3.
 > Copyright ©, RaviAnand Mohabir
