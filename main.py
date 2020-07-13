@@ -31,6 +31,13 @@ class Reddify(commands.Bot):
             await ctx.message.channel.send(error)
             print(traceback.format_exc())
 
+    async def on_message(self, msg: discord.Message):
+        if msg.author.id == self.user.id:
+            return
+        # await msg.channel.send("Reddify is currently being overhauled to a v2. " +
+                              #  "For more information check out the GitHub Repo: https://github.com/Dan6erbond/Reddify-v2.")
+        await bot.process_commands(msg)
+
     def get_embed(self):
         embed = discord.Embed(
             colour=discord.Colour(0).from_rgb(254, 63, 24)
