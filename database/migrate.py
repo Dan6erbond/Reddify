@@ -51,7 +51,7 @@ def main():
     with open(f'{path}/database-old/users.json') as f:
         users = json.loads(f.read())
         for u in users:
-            if not session.query(DiscordUser).filter(DiscordUser.user_id == u["discord"]).first:
+            if not session.query(DiscordUser).filter(DiscordUser.user_id == u["discord"]).first():
                 discord_user = DiscordUser(user_id=u["discord"])
                 session.add(discord_user)
             for acc in u["verified-reddits"]:
@@ -84,8 +84,9 @@ def main():
                     continue
                 if reddit_user := session.query(RedditUser).filter(
                         or_(RedditUser.username == acc, RedditUser.user_id == user_id)).first():
-                    reddit_user.verified = False
+                    reddit_user.discord_user = u["discord"]
                     reddit_user.user_id = user_id
+                    reddit_user.username = u["unverified-reddit"]
                 else:
                     reddit_user = RedditUser(
                         discord_user=u["discord"],
