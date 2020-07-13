@@ -99,6 +99,10 @@ class UserCog(commands.Cog):
             session.commit()
 
             guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
+            if not guild:
+                guild = Guild(guild_id=ctx.guild.id)
+                session.add(guild)
+                session.commit()
 
             if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
                 self.bot.update_guild_user(guild, discord_user)
