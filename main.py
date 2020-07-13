@@ -10,6 +10,7 @@ from sqlalchemy.sql.expression import and_
 from cogs import UserCog
 from const import VERSION
 from database.models import DiscordUser, Guild
+from helpers import advanced_user
 
 
 class Reddify(commands.Bot):
@@ -65,6 +66,15 @@ class Reddify(commands.Bot):
                     await self.send_error(f"❗ I don't have the necessary permissions to change {m.mention}'s nickname.")
                 finally:
                     break
+
+    @commands.command(help="Get your subreddit's stats.")
+    async def substats(self, ctx: commands.Context, sub: str = ""):
+        pass
+
+    @commands.command(help="Get a user's verified Reddit account(s).")
+    @commands.check(advanced_user)
+    async def reddify(self, ctx: commands.Context, user_id: int):
+        pass
 
 
 extensions = ["cogs.user_cog",
