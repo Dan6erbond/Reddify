@@ -44,14 +44,6 @@ class GuildCog(commands.Cog):
             session.add(guild)
             session.commit()
 
-    @commands.Cog.listener
-    async def on_member_join(self, member: discord.Member):
-        guild = session.query(Guild).filter(Guild.guild_id == member.guild.id).first()
-        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first()
-
-        if guild and discord_user:
-            await self.bot.update_guild_user(guild, discord_user)
-
     @commands.command(help="Check which features of the bot are enabled/disabled.")
     async def status(self, ctx: commands.Context):
         guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()

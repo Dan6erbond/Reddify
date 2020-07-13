@@ -91,6 +91,14 @@ class UserCog(commands.Cog):
 
             session.commit()
 
+    @commands.Cog.listener
+    async def on_member_join(self, member: discord.Member):
+        guild = session.query(Guild).filter(Guild.guild_id == member.guild.id).first()
+        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first()
+
+        if guild and discord_user:
+            await self.bot.update_guild_user(guild, discord_user)
+
     @commands.command(help="Unlink a Reddit account from your Discord handle.")
     async def unverify(self, ctx: commands.Context, user: str):
         if reddit_user := session.query(RedditUser).filter(and_(func.lower(RedditUser.username) == user,
