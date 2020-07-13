@@ -39,7 +39,7 @@ class UserCog(commands.Cog):
             return
 
         if reddit_user := session.query(RedditUser).filter(and_(RedditUser.discord_user ==
-                                                 ctx.author.id, RedditUser.verified == false())).first():
+                                                                ctx.author.id, RedditUser.verified == false())).first():
             await ctx.message.channel.send(
                 f"❗ /u/{reddit_user.username} is still awaiting verification on Reddit. " +
                 f"If you would like to unlink it, use `!unverify {reddit_user.username}`.")
@@ -65,18 +65,22 @@ class UserCog(commands.Cog):
                 if not "Account Ownership Confirmation" in message.subject:
                     continue
 
-                author = await message.author()
-                if author.name.lower() != reddit_user.username.lower():
-                    continue
+                try:
+                    author = await message.author()
+                    if author.name.lower() != reddit_user.username.lower():
+                        continue
+                except Exception as e:
+                    await self.bot.send_error(e)
 
                 if "verify" in message.body.lower() and not "unverify" in message.body.lower():
                     reddit_user.verified = True
                     user = self.bot.get_user(reddit_user.discord_user)
                     if user is not None:
-                        guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
-                        self.bot.update_guild_user(guild, discord_user)
                         await msg.add_reaction(EMOJIS["CHECK"])
                         await message.reply(f"Confirmation of {user} successful!")
+
+                        for guild in session.query(Guild).all():
+                            await self.bot.update_guild_user(guild, discord_user)
                 else:
                     message.reply(
                         "Discord user unlinked from your Reddit account. " +
