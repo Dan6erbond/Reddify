@@ -94,7 +94,7 @@ class UserCog(commands.Cog):
 
             session.commit()
 
-    @commands.Cog.listener
+    @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = session.query(Guild).filter(Guild.guild_id == member.guild.id).first()
         discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first()
