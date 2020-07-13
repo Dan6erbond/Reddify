@@ -67,7 +67,8 @@ class Reddify(commands.Bot):
                     break
 
 
-extensions = ["cogs.user_cog"]
+extensions = ["cogs.user_cog",
+              "cogs.guild_cog"]
 
 if __name__ == "__main__":
     bot = Reddify()
