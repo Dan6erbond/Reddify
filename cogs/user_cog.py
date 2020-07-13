@@ -100,10 +100,7 @@ class UserCog(commands.Cog):
 
             guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
 
-            if discord_user := session.query(DiscordUser).join(
-                    RedditUser).filter(DiscordUser.user_id == ctx.author.id).first():
-                self.bot.update_guild_user(guild, discord_user)
-            elif discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
+            if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
                 self.bot.update_guild_user(guild, discord_user)
 
             await ctx.channel.send(f"<{EMOJIS['CHECK']}> Successfully unlinked /u/{user}!")
