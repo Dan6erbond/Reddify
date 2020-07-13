@@ -243,6 +243,32 @@ class UserCog(commands.Cog):
 
         await wait_msg.edit(embed=embed)
 
+    @commands.command(help="Change your nickname on the server.")
+    async def nick(self, ctx: commands.Context, *, new_nick: str = ""):
+        guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
+        if not guild:
+            guild = Guild(guild_id=ctx.guild.id)
+            session.add(guild)
+            session.commit()
+
+        if not guild.custom_nick:
+            await ctx.send(f"<{EMOJIS['XMARK']}> This server has disabled custom nicknames!")
+            return
+
+        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first()
+        verified = [acc.username for acc in discord_user.reddit_accounts]
+
+        if new_nick != "":
+            end = f"({'unverified' if len(verified) <= 0 else '/u/' + verified[0]})"
+            new_nick = f"{new_nick[:32 - len(end) - 1]} {end}"
+        else:
+            new_nick = f"/u/{verified[0]}" if len(verified) > 0 else ctx.author.username
+
+        try:
+            await ctx.author.edit(nick=new_nick)
+        except discord.errors.Forbidden:
+            await ctx.send(f"<{EMOJIS['XMARK']}> I don't have the permissions to edit your nickname!")
+
 
 def setup(bot: 'Reddify'):
     bot.add_cog(UserCog(bot))
