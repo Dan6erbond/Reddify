@@ -9,6 +9,7 @@ class Guild(Base):
 
     guild_id = Column(Integer, primary_key=True)
     role = Column(Integer)
+    subreddit = Column(String(50))
     set_role = Column(Boolean, default=False)
     set_username = Column(Boolean, default=False)
     custom_nick = Column(Boolean, default=False)
