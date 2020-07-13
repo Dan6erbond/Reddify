@@ -10,6 +10,7 @@ from sqlalchemy.sql.expression import and_
 from cogs import UserCog
 from const import VERSION
 from database.models import DiscordUser, Guild
+from helpers import advanced_user
 
 
 class Reddify(commands.Bot):
@@ -66,8 +67,19 @@ class Reddify(commands.Bot):
                 finally:
                     break
 
+    @commands.command(help="Get your subreddit's stats.")
+    async def substats(self, ctx: commands.Context, sub: str = ""):
+        pass
 
-extensions = ["cogs.user_cog"]
+    @commands.command(help="Get a user's verified Reddit account(s).")
+    @commands.check(advanced_user)
+    async def reddify(self, ctx: commands.Context, user_id: int):
+        pass
+
+
+extensions = ["cogs.user_cog",
+              "cogs.guild_cog",
+              "cogs.channel_cog"]
 
 if __name__ == "__main__":
     bot = Reddify()
