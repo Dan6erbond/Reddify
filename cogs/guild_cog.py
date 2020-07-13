@@ -113,3 +113,7 @@ class GuildCog(commands.Cog):
                 await ctx.send(f"<{EMOJIS['CHECK']}> Custom nicknames disabled for this server!")
         else:
             await ctx.message.channel.send("❗ Invalid argument. Toggle `role`, `username` or `nick`.")
+
+
+def setup(bot: 'Reddify'):
+    bot.add_cog(GuildCog(bot))
