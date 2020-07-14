@@ -13,7 +13,7 @@ from database.models import DiscordUser, Guild, RedditUser
 from helpers import is_verified
 
 if TYPE_CHECKING:
-    from main import Reddify
+    from reddify import Reddify
 
 
 class UserCog(commands.Cog):
@@ -78,7 +78,7 @@ class UserCog(commands.Cog):
                 if "verify" in message.body.lower() and not "unverify" in message.body.lower():
                     reddit_user.verified = True
                     user = self.bot.get_user(reddit_user.discord_user)
-                    if user is not None:
+                    if user:
                         await msg.add_reaction(EMOJIS["CHECK"])
                         await message.reply(f"Confirmation of {user} successful!")
 
@@ -116,7 +116,7 @@ class UserCog(commands.Cog):
                 session.commit()
 
             if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
-                self.bot.update_guild_user(guild, discord_user)
+                await self.bot.update_guild_user(guild, discord_user)
 
             await ctx.channel.send(f"<{EMOJIS['CHECK']}> Successfully unlinked /u/{user}!")
         else:
@@ -133,7 +133,7 @@ class UserCog(commands.Cog):
                 msg += f"\nUnverified Account: /u/{unverified_accounts[0]}"
             await ctx.message.channel.send(msg)
             guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
-            self.bot.update_guild_user(guild, discord_user)
+            await self.bot.update_guild_user(guild, discord_user)
         elif discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
             await ctx.message.channel.send("You haven't verified any Reddit accounts with Reddify yet!")
 
