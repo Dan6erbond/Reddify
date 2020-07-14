@@ -29,7 +29,7 @@ class Reddify(commands.Bot):
             pass
         else:
             await ctx.message.channel.send(error)
-            print(traceback.format_exc())
+            traceback.print_tb(error.__traceback__)
 
     async def on_message(self, msg: discord.Message):
         if msg.author.id == self.user.id:
