@@ -168,8 +168,7 @@ class UserCog(commands.Cog):
         title = f"{user_name}'s Reddit account(s):" if user else f"{user_name}'s statistics:"
         embed.set_author(name=title, url=url)
 
-        u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
-        if user and u:
+        if user and (u := session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()):
             if u.reddit_accounts:
                 embed.description = "No verified Reddit accounts for {}!".format(user_name)
 
