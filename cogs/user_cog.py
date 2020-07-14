@@ -154,14 +154,12 @@ class UserCog(commands.Cog):
             else:
                 member = discord.utils.find(lambda m: m.nick == us or m.name == us or str(m) == us,
                                             ctx.guild.members)
-
-        wait_msg = None
-        user_name = f"/u/{us}" if not isinstance(user, discord.User) else user.name if not user.nick else user.nick
-        if us == "":
-            user = ctx.author
-            wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
-        else:
+            user_name = f"/u/{us}" if not user else user.name if not user.nick else user.nick
             wait_msg = await ctx.channel.send(f"🕑 Please wait while we gather {user_name}'s stats...")
+        else:
+            user = ctx.author
+            user_name = user.name if not user.nick else user.nick
+            wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
 
         embed = self.bot.get_embed()
 
