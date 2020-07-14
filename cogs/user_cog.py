@@ -144,19 +144,14 @@ class UserCog(commands.Cog):
 
         user = None
 
-        # TODO: Replace with Discord.py user utility function
         if us != "":
             id = re.search(r"(\d{18})", us)
-            if id is not None:
+            if id:
                 id = int(id.group(1))
-                user = ctx.guild.get_member(id)
-                if user is None:
-                    user = bot.get_user(id)
+                user = user if (user := ctx.guild.get_member(id)) else bot.get_user(id)
             else:
-                for u in ctx.guild.members:
-                    if u.nick == us or u.name == us or str(u) == us:
-                        user = u
-                        break
+                member = discord.utils.find(lambda m: m.nick == us or m.name == us or str(m) == us,
+                                            ctx.guild.members)
 
         wait_msg = None
         user_name = f"/u/{us}" if user is None else user.name if user.nick is None or isinstance(
@@ -170,12 +165,11 @@ class UserCog(commands.Cog):
         embed = self.bot.get_embed()
 
         url = f"https://www.reddit.com/u/{us}" if user is None else discord.Embed.Empty
-        title = f"{user_name}'s Reddit account(s):" if user is not None else f"{user_name}'s statistics:"
+        title = f"{user_name}'s Reddit account(s):" if user else f"{user_name}'s statistics:"
         embed.set_author(name=title, url=url)
 
-        if user is not None:
-            u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
-
+        u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
+        if user and u:
             if u.reddit_accounts:
                 embed.description = "No verified Reddit accounts for {}!".format(user_name)
 
