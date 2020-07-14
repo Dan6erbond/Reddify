@@ -170,7 +170,8 @@ class UserCog(commands.Cog):
         title = f"{user_name}'s Reddit account(s):" if user else f"{user_name}'s statistics:"
         embed.set_author(name=title, url=url)
 
-        if user and (u := session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()):
+        u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
+        if user and u:
             if u.reddit_accounts:
                 embed.description = "No verified Reddit accounts for {}!".format(user_name)
 
@@ -192,7 +193,7 @@ class UserCog(commands.Cog):
 
                 for subreddit in subreddits:
                     moderators = [mod async for mod in subreddit.moderators()]
-                    prefix = "⭐" if r.lower() == str(moderators[0]).lower() else "🔸"
+                    prefix = "⭐" if r.username.lower() == str(moderators[0]).lower() else "🔸"
                     m += f"{prefix}[/r/{subreddit}](https://www.reddit.com/r/{subreddit}): {subreddit.subscribers} Subscribers\n"
 
                 left_over = amt - len(subreddits)
