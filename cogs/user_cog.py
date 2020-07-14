@@ -24,7 +24,9 @@ class UserCog(commands.Cog):
     async def verify(self, ctx: commands.Context, user: str):
         user = user.replace("u/", "").replace("/", "").strip().lower()
 
-        if not session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
+        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first()
+
+        if not discord_user:
             discord_user = DiscordUser(user_id=ctx.author.id)
             session.add(discord_user)
             session.commit()
@@ -80,7 +82,7 @@ class UserCog(commands.Cog):
                     user = self.bot.get_user(reddit_user.discord_user)
                     if user:
                         await msg.add_reaction(EMOJIS["CHECK"])
-                        await message.reply(f"Confirmation of {user} successful!")
+                        rep = await message.reply(f"Confirmation of {user} successful!")
 
                         for guild in session.query(Guild).all():
                             await self.bot.update_guild_user(guild, discord_user)
