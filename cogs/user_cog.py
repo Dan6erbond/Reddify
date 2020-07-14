@@ -156,8 +156,7 @@ class UserCog(commands.Cog):
                                             ctx.guild.members)
 
         wait_msg = None
-        user_name = f"/u/{us}" if user is None else user.name if user.nick is None or isinstance(
-            user, discord.User) else user.nick
+        user_name = f"/u/{us}" if not isinstance(user, discord.User) else user.name if not user.nick else user.nick
         if us == "":
             user = ctx.author
             wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
@@ -172,7 +171,7 @@ class UserCog(commands.Cog):
 
         u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
         if user and u:
-            if u.reddit_accounts:
+            if not u.reddit_accounts:
                 embed.description = "No verified Reddit accounts for {}!".format(user_name)
 
             for r in u.reddit_accounts:
@@ -237,7 +236,7 @@ class UserCog(commands.Cog):
                 val = f"{newline.join(subs)}{left_over}\n\nTotal: {subscribers} subscribers"
                 embed.add_field(name="Subreddits", value=val)
 
-        await wait_msg.edit(embed=embed)
+        await wait_msg.edit(embed=embed, content="")
 
     @commands.command(help="Change your nickname on the server.")
     async def nick(self, ctx: commands.Context, *, new_nick: str = ""):
