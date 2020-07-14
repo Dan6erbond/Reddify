@@ -9,6 +9,7 @@ from sqlalchemy.sql.expression import and_
 
 from cogs import UserCog
 from const import VERSION
+from database.database import session
 from database.models import DiscordUser, Guild
 from helpers import advanced_user
 
@@ -61,10 +62,22 @@ class Reddify(commands.Bot):
 
         verified_accounts = [acc for acc in discord_user.reddit_accounts if acc.verified]
 
-        if guild.set_role and verified_accounts:
-            await m.add_roles(g.get_role(guild.role))
-        elif guild.set_role and not verified_accounts:
-            await m.remove_roles(g.get_role(guild.role))
+        if guild.set_role:
+            role = g.get_role(guild.role)
+
+            if not role:
+                role = await g.create_role(name="Verified Redditor",
+                                           colour=discord.Colour(0).from_rgb(254, 63, 24),
+                                           mentionable=True,
+                                           reason="Verified Redditors get this role by the bot.")
+                guild.role = role.id
+                session.commit()
+
+            if verified_accounts:
+                await m.add_roles(role)
+            else:
+                await m.remove_roles(role)
+
         if guild.set_username:
             for account in verified_accounts:
                 try:
