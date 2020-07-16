@@ -133,3 +133,4 @@ dmypy.json
 # Database files
 *.db
 *.db-journal
+database-old/

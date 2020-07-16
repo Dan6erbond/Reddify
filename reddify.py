@@ -7,8 +7,10 @@ import discord
 from discord.ext import commands
 from sqlalchemy.sql.expression import and_
 
+from cmds import HelpCommand
 from cogs import UserCog
 from const import VERSION
+from database.database import session
 from database.models import DiscordUser, Guild
 from helpers import advanced_user
 
@@ -18,6 +20,7 @@ class Reddify(commands.Bot):
         super().__init__(
             "!",
             description="The official Reddify bot by Dan6erbond to seamlessly connect Reddit and Discord.",
+            help_command=HelpCommand,
             **options)
         self.reddit = apraw.Reddit("TRB")
 
@@ -29,9 +32,17 @@ class Reddify(commands.Bot):
             pass
         else:
             await ctx.message.channel.send(error)
-            print(traceback.format_exc())
+            traceback.print_tb(error.__traceback__)
 
-    def get_embed(self):
+    async def on_message(self, msg: discord.Message):
+        if msg.author.id == self.user.id:
+            return
+        # await msg.channel.send("Reddify is currently being overhauled to a v2. " +
+            #  "For more information check out the GitHub Repo: https://github.com/Dan6erbond/Reddify-v2.")
+        await bot.process_commands(msg)
+
+    @property
+    def embed(self):
         embed = discord.Embed(
             colour=discord.Colour(0).from_rgb(254, 63, 24)
         )
@@ -39,6 +50,9 @@ class Reddify(commands.Bot):
         embed.timestamp = datetime.utcnow()
 
         return embed
+
+    def get_embed(self):
+        return self.embed
 
     async def send_error(self, message):
         await self.get_channel(556732041752739840).send(message)
@@ -54,10 +68,22 @@ class Reddify(commands.Bot):
 
         verified_accounts = [acc for acc in discord_user.reddit_accounts if acc.verified]
 
-        if guild.set_role and verified_accounts:
-            await m.add_roles(g.get_role(guild.role))
-        elif guild.set_role and not verified_accounts:
-            await m.remove_roles(g.get_role(guild.role))
+        if guild.set_role:
+            role = g.get_role(guild.role)
+
+            if not role:
+                role = await g.create_role(name="Verified Redditor",
+                                           colour=discord.Colour(0).from_rgb(254, 63, 24),
+                                           mentionable=True,
+                                           reason="Verified Redditors get this role by the bot.")
+                guild.role = role.id
+                session.commit()
+
+            if verified_accounts:
+                await m.add_roles(role)
+            else:
+                await m.remove_roles(role)
+
         if guild.set_username:
             for account in verified_accounts:
                 try:
@@ -67,19 +93,14 @@ class Reddify(commands.Bot):
                 finally:
                     break
 
-    @commands.command(help="Get your subreddit's stats.")
-    async def substats(self, ctx: commands.Context, sub: str = ""):
-        pass
-
     @commands.command(help="Get a user's verified Reddit account(s).")
     @commands.check(advanced_user)
     async def reddify(self, ctx: commands.Context, user_id: int):
         pass
 
 
-extensions = ["cogs.user_cog",
-              "cogs.guild_cog",
-              "cogs.channel_cog"]
+extensions = ["cogs.user_cog", "cogs.guild_cog",
+              "cogs.channel_cog", "cogs.reddit_cog"]
 
 if __name__ == "__main__":
     bot = Reddify()

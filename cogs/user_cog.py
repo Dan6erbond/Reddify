@@ -13,7 +13,7 @@ from database.models import DiscordUser, Guild, RedditUser
 from helpers import is_verified
 
 if TYPE_CHECKING:
-    from main import Reddify
+    from reddify import Reddify
 
 
 class UserCog(commands.Cog):
@@ -24,7 +24,9 @@ class UserCog(commands.Cog):
     async def verify(self, ctx: commands.Context, user: str):
         user = user.replace("u/", "").replace("/", "").strip().lower()
 
-        if not session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
+        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first()
+
+        if not discord_user:
             discord_user = DiscordUser(user_id=ctx.author.id)
             session.add(discord_user)
             session.commit()
@@ -78,9 +80,9 @@ class UserCog(commands.Cog):
                 if "verify" in message.body.lower() and not "unverify" in message.body.lower():
                     reddit_user.verified = True
                     user = self.bot.get_user(reddit_user.discord_user)
-                    if user is not None:
+                    if user:
                         await msg.add_reaction(EMOJIS["CHECK"])
-                        await message.reply(f"Confirmation of {user} successful!")
+                        rep = await message.reply(f"Confirmation of {user} successful!")
 
                         for guild in session.query(Guild).all():
                             await self.bot.update_guild_user(guild, discord_user)
@@ -94,7 +96,7 @@ class UserCog(commands.Cog):
 
             session.commit()
 
-    @commands.Cog.listener
+    @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = session.query(Guild).filter(Guild.guild_id == member.guild.id).first()
         discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == member.id).first()
@@ -116,7 +118,7 @@ class UserCog(commands.Cog):
                 session.commit()
 
             if discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
-                self.bot.update_guild_user(guild, discord_user)
+                await self.bot.update_guild_user(guild, discord_user)
 
             await ctx.channel.send(f"<{EMOJIS['CHECK']}> Successfully unlinked /u/{user}!")
         else:
@@ -133,7 +135,7 @@ class UserCog(commands.Cog):
                 msg += f"\nUnverified Account: /u/{unverified_accounts[0]}"
             await ctx.message.channel.send(msg)
             guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
-            self.bot.update_guild_user(guild, discord_user)
+            await self.bot.update_guild_user(guild, discord_user)
         elif discord_user := session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first():
             await ctx.message.channel.send("You haven't verified any Reddit accounts with Reddify yet!")
 
@@ -144,39 +146,29 @@ class UserCog(commands.Cog):
 
         user = None
 
-        # TODO: Replace with Discord.py user utility function
         if us != "":
             id = re.search(r"(\d{18})", us)
-            if id is not None:
+            if id:
                 id = int(id.group(1))
-                user = ctx.guild.get_member(id)
-                if user is None:
-                    user = bot.get_user(id)
+                user = user if (user := ctx.guild.get_member(id)) else bot.get_user(id)
             else:
-                for u in ctx.guild.members:
-                    if u.nick == us or u.name == us or str(u) == us:
-                        user = u
-                        break
-
-        wait_msg = None
-        user_name = f"/u/{us}" if user is None else user.name if user.nick is None or isinstance(
-            user, discord.User) else user.nick
-        if us == "":
-            user = ctx.author
-            wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
-        else:
+                member = discord.utils.find(lambda m: m.nick == us or m.name == us or str(m) == us,
+                                            ctx.guild.members)
+            user_name = f"/u/{us}" if not user else user.name if not user.nick else user.nick
             wait_msg = await ctx.channel.send(f"🕑 Please wait while we gather {user_name}'s stats...")
+        else:
+            user = ctx.author
+            user_name = user.name if not user.nick else user.nick
+            wait_msg = await ctx.channel.send("🕑 Please wait while we gather your stats...")
 
         embed = self.bot.get_embed()
 
         url = f"https://www.reddit.com/u/{us}" if user is None else discord.Embed.Empty
-        title = f"{user_name}'s Reddit account(s):" if user is not None else f"{user_name}'s statistics:"
+        title = f"{user_name}'s Reddit account(s):" if user else f"{user_name}'s statistics:"
         embed.set_author(name=title, url=url)
 
-        if user is not None:
-            u = session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()
-
-            if u.reddit_accounts:
+        if user and (u := session.query(DiscordUser).filter(DiscordUser.user_id == user.id).first()):
+            if not u.reddit_accounts:
                 embed.description = "No verified Reddit accounts for {}!".format(user_name)
 
             for r in u.reddit_accounts:
@@ -197,7 +189,7 @@ class UserCog(commands.Cog):
 
                 for subreddit in subreddits:
                     moderators = [mod async for mod in subreddit.moderators()]
-                    prefix = "⭐" if r.lower() == str(moderators[0]).lower() else "🔸"
+                    prefix = "⭐" if r.username.lower() == str(moderators[0]).lower() else "🔸"
                     m += f"{prefix}[/r/{subreddit}](https://www.reddit.com/r/{subreddit}): {subreddit.subscribers} Subscribers\n"
 
                 left_over = amt - len(subreddits)
@@ -241,7 +233,33 @@ class UserCog(commands.Cog):
                 val = f"{newline.join(subs)}{left_over}\n\nTotal: {subscribers} subscribers"
                 embed.add_field(name="Subreddits", value=val)
 
-        await wait_msg.edit(embed=embed)
+        await wait_msg.edit(embed=embed, content="")
+
+    @commands.command(help="Change your nickname on the server.")
+    async def nick(self, ctx: commands.Context, *, new_nick: str = ""):
+        guild = session.query(Guild).filter(Guild.guild_id == ctx.guild.id).first()
+        if not guild:
+            guild = Guild(guild_id=ctx.guild.id)
+            session.add(guild)
+            session.commit()
+
+        if not guild.custom_nick:
+            await ctx.send(f"<{EMOJIS['XMARK']}> This server has disabled custom nicknames!")
+            return
+
+        discord_user = session.query(DiscordUser).filter(DiscordUser.user_id == ctx.author.id).first()
+        verified = [acc.username for acc in discord_user.reddit_accounts]
+
+        if new_nick != "":
+            end = f"({'unverified' if len(verified) <= 0 else '/u/' + verified[0]})"
+            new_nick = f"{new_nick[:32 - len(end) - 1]} {end}"
+        else:
+            new_nick = f"/u/{verified[0]}" if len(verified) > 0 else ctx.author.username
+
+        try:
+            await ctx.author.edit(nick=new_nick)
+        except discord.errors.Forbidden:
+            await ctx.send(f"<{EMOJIS['XMARK']}> I don't have the permissions to edit your nickname!")
 
     @commands.command(help="Change your nickname on the server.")
     async def nick(self, ctx: commands.Context, *, new_nick: str = ""):
