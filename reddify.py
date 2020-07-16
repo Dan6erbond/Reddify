@@ -20,7 +20,7 @@ class Reddify(commands.Bot):
         super().__init__(
             "!",
             description="The official Reddify bot by Dan6erbond to seamlessly connect Reddit and Discord.",
-            help_command=HelpCommand,
+            help_command=HelpCommand(),
             **options)
         self.reddit = apraw.Reddit("TRB")
 
