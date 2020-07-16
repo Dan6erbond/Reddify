@@ -1,11 +1,11 @@
-# Reddify v2
+# Reddify
 
 ![Mariavi Discord](https://img.shields.io/discord/554773624784027658?color=7289da&label=Discord&logo=discord&style=flat-square)
 ![Made With](https://img.shields.io/badge/made_with-Python_3.7-blue?style=flat-square&logo=python)
 ![GitHub Stars](https://img.shields.io/github/stars/Dan6erbond/Reddify-v2?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/Dan6erbond/Reddify-v2?style=flat-square)
 
-Reddify v2 is the open-source rework of the original Reddify bot. It makes use of [aPRAW's](http://apraw.readthedocs.io/) asynchronous functionality, Discord.py as well as a SQLite3 database to enable a seamless connection between Discord and Reddit.
+Reddify is the open-source rework of the original Reddify bot. It makes use of [aPRAW's](http://apraw.readthedocs.io/) asynchronous functionality, Discord.py as well as a SQLite3 database to enable a seamless connection between Discord and Reddit.
 
 ## Contents
 
