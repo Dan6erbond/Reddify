@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 from sqlalchemy.sql.expression import and_
 
+from cmds import HelpCommand
 from cogs import UserCog
 from const import VERSION
 from database.database import session
@@ -19,6 +20,7 @@ class Reddify(commands.Bot):
         super().__init__(
             "!",
             description="The official Reddify bot by Dan6erbond to seamlessly connect Reddit and Discord.",
+            help_command=HelpCommand,
             **options)
         self.reddit = apraw.Reddit("TRB")
 
@@ -39,7 +41,8 @@ class Reddify(commands.Bot):
             #  "For more information check out the GitHub Repo: https://github.com/Dan6erbond/Reddify-v2.")
         await bot.process_commands(msg)
 
-    def get_embed(self):
+    @property
+    def embed(self):
         embed = discord.Embed(
             colour=discord.Colour(0).from_rgb(254, 63, 24)
         )
@@ -47,6 +50,9 @@ class Reddify(commands.Bot):
         embed.timestamp = datetime.utcnow()
 
         return embed
+
+    def get_embed(self):
+        return self.embed
 
     async def send_error(self, message):
         await self.get_channel(556732041752739840).send(message)
