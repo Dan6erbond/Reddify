@@ -177,7 +177,8 @@ class UserCog(commands.Cog):
                 m = f"{redditor.link_karma} link | {redditor.comment_karma} comment\n"
 
                 subscribers = 0
-                subreddits = [sub async for sub in redditor.moderated_subreddits() if (subscribers := subscribers + sub.subscribers)]
+                subreddits = [sub async for sub in redditor.moderated_subreddits() if sub.subscribers]
+                subreddits = [sub for sub in subreddits if (subscribers := subscribers + sub.subscribers)]
 
                 amt = len(subreddits)
 
@@ -211,7 +212,8 @@ class UserCog(commands.Cog):
             embed.description = f"{redditor.link_karma} link | {redditor.comment_karma} comment\n"
 
             subscribers = 0
-            subreddits = [sub async for sub in redditor.moderated_subreddits() if (subscribers := subscribers + sub.subscribers)]
+            subreddits = [sub async for sub in redditor.moderated_subreddits() if sub.subscribers]
+            subreddits = [sub for sub in subreddits if (subscribers := subscribers + sub.subscribers)]
 
             amt = len(subreddits)
 
