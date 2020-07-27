@@ -9,7 +9,7 @@ Reddify is the open-source rework of the original Reddify bot. It makes use of [
 
 ## Contents
 
-- [Reddify v2](#reddify-v2)
+- [Reddify](#reddify)
   - [Contents](#contents)
   - [Usage](#usage)
     - [Admin Setup](#admin-setup)
