@@ -36,11 +36,11 @@ class GuildCog(commands.Cog):
             await ctx.send(f"<{EMOJIS['CHECK']}> Successfully set /r/{sub} as this guild's subreddit!")
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
-        guild = session.query(Guild).filter(Guild.guild_id == guild.id).first()
+    async def on_guild_join(self, g: discord.Guild):
+        guild = session.query(Guild).filter(Guild.guild_id == g.id).first()
 
         if not guild:
-            guild = Guild(guild_id=guild.id)
+            guild = Guild(guild_id=g.id)
             session.add(guild)
             session.commit()
 
