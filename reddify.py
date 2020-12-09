@@ -14,6 +14,9 @@ from database.database import session
 from database.models import DiscordUser, Guild
 from helpers import advanced_user
 
+intents = discord.Intents.default()
+intents.members = True
+
 
 class Reddify(commands.Bot):
     def __init__(self, **options):
@@ -21,6 +24,7 @@ class Reddify(commands.Bot):
             "!",
             description="The official Reddify bot by Dan6erbond to seamlessly connect Reddit and Discord.",
             help_command=HelpCommand(),
+            intents=intents,
             **options)
         self.reddit = apraw.Reddit("TRB")
 
